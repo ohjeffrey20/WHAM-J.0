@@ -120,7 +120,6 @@ int main(void){
 	  LCD_DC('o',0);
 	  LCD_DC(':',0);
 	  LCD_DC(')',0);
-	  LCD_DC(' ',0);
 
 	GPIOB->ODR |= 0x0100;
 //	delayms(1000);
