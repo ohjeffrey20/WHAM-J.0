@@ -40,6 +40,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c2;
 UART_HandleTypeDef huart2;
 volatile unsigned int TIM2cnt;
 
@@ -52,6 +53,7 @@ void SystemClock_Config(void);
 static void TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_GPIO_Init(void);
+static void MX_I2C2_Init(void);
 void TIM2_IRQHandler(void);
 void delayms(int ms);
 void LCD_Init(void);
@@ -75,7 +77,7 @@ void I2C_Write(char w, char DC_Flag);
   */
 int main(void){
   /* USER CODE BEGIN 1 */
-	uint32_t temp = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,9 +100,9 @@ int main(void){
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   TIM2_Init();
-
-//  I2C_Init();
-//  L2D_Init();
+  
+  I2C_Init();
+  L2D_Init();
 
   /* USER CODE BEGIN 2 */
   LCD_Init();
@@ -109,24 +111,23 @@ int main(void){
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while(1){
-	  LCD_DC(0x01,1); //clear display
-	  LCD_DC(0x02,1); //return home
-	  LCD_DC('A',0);
-	  LCD_DC('y',0);
-	  LCD_DC(' ',0);
-	  LCD_DC('l',0);
-	  LCD_DC('m',0);
-	  LCD_DC('a',0);
-	  LCD_DC('o',0);
-	  LCD_DC(':',0);
-	  LCD_DC(')',0);
+    HAL_GPIO_TogglePin(GPIOB, LD2_Pin);
+    HAL_Delay(100);
+  }
+}
 
-	GPIOB->ODR |= 0x0100;
-//	delayms(1000);
-	HAL_Delay(1000);
-	GPIOB->ODR &= ~0x0100;
-//	delayms(1000);
-	HAL_Delay(1000);
+void LCD_test(void){
+  char C = 'A';
+  char c = 'a';
+  int i = 1;
+  LCD_DC(0x01,1); //clear display
+	LCD_DC(0x02,1); //return home
+  while(i < 26){
+    LCD_DC(C,0);
+    LCD_DC(c,0);
+    C++;
+    c++;
+    i++;
   }
 }
 
@@ -175,8 +176,9 @@ void SystemClock_Config(void)
   }
   /** Initializes the peripherals clocks
   */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C2;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1; // TODO CHECK THIS (edit from MX)
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -322,10 +324,56 @@ static void MX_GPIO_Init(void)
 //	GPIOB->PUPDR = temp;
 //}
 
+/**
+  * @brief I2C2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C2_Init(void)
+{
+
+  /* USER CODE BEGIN I2C2_Init 0 */
+
+  /* USER CODE END I2C2_Init 0 */
+
+  /* USER CODE BEGIN I2C2_Init 1 */
+
+  /* USER CODE END I2C2_Init 1 */
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.Timing = 0x30A0A7FB;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C2_Init 2 */
+
+  /* USER CODE END I2C2_Init 2 */
+
+} 
+
 static void TIM2_Init(void){
-	RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
+  RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
 	TIM2->PSC = 0;
-	TIM2->ARR = 170*1000;	// Check freq
+	TIM2->ARR = 48;	// Check freq
 	TIM2->CR1 |= TIM_CR1_URS;
 	TIM2->DIER |= TIM_DIER_UIE;
 	TIM2->EGR |= TIM_EGR_UG;
@@ -437,9 +485,15 @@ void I2C_Init(void){
 
 void L2D_Init(void){
 	uint32_t temp;
+  uint8_t buf[12];
 	I2C2->CR2 |= I2C_CR1_PE;
 	I2C2->CR2 |= I2C_CR2_START;
 	while((I2C2->ISR & I2C_ISR_TXIS) != 1);
+  buf[0] = 0x2A;
+  // ret = HAL_I2C_Master_Transmit(&hi2c1, 0x3C, buf, 1, HAL_MAX_DELAY);
+  // while(ret != HAL_OK) {
+  //   asm("nop");
+  // }
 	I2C_Write(0x2A,1);
 }
 
