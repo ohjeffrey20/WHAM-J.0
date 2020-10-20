@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stm32g4xx_hal_i2c.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -98,6 +99,7 @@ int main(void){
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_I2C2_Init();
   MX_USART2_UART_Init();
   TIM2_Init();
   
@@ -105,7 +107,7 @@ int main(void){
   L2D_Init();
 
   /* USER CODE BEGIN 2 */
-  LCD_Init();
+  // LCD_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -265,10 +267,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PA9/SCL */
-  GPIO_InitStruct.Pin = GPIO_PIN_9;
+  GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PF0/SDA */
@@ -348,6 +351,7 @@ static void MX_I2C2_Init(void)
   hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
   hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  __I2C2_CLK_ENABLE();
   if (HAL_I2C_Init(&hi2c2) != HAL_OK)
   {
     Error_Handler();
@@ -476,7 +480,7 @@ void LCD_DC(char c, char DC_Flag){
 
 void I2C_Init(void){
 	uint32_t temp;
-	__HAL_RCC_I2C2_CLK_ENABLE();
+	// __I2C2_CLK_ENABLE();
 	temp = I2C2->CR2;
 	temp &= ~(I2C_CR2_SADD & I2C_CR1_PE);	// Write transfer ensured
 	temp |= 0x3C << 1;	// Display Address
@@ -484,17 +488,18 @@ void I2C_Init(void){
 }
 
 void L2D_Init(void){
+  uint32_t ret;
 	uint32_t temp;
   uint8_t buf[12];
 	I2C2->CR2 |= I2C_CR1_PE;
-	I2C2->CR2 |= I2C_CR2_START;
-	while((I2C2->ISR & I2C_ISR_TXIS) != 1);
+	// I2C2->CR2 |= I2C_CR2_START;
+	// while((I2C2->ISR & I2C_ISR_TXIS) != 1);
   buf[0] = 0x2A;
-  // ret = HAL_I2C_Master_Transmit(&hi2c1, 0x3C, buf, 1, HAL_MAX_DELAY);
-  // while(ret != HAL_OK) {
-  //   asm("nop");
-  // }
-	I2C_Write(0x2A,1);
+  ret = HAL_I2C_Master_Transmit(&hi2c2, 0x3C << 1, (uint8_t *)"1234", 4, 10000);
+  if (ret != HAL_OK)
+    {
+        asm("bkpt 255");
+    }
 }
 
 void I2C_Write(char w, char DC_Flag){

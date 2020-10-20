@@ -1,16 +1,17 @@
 #include "main.h"
+#include "LCD.h"
 
-void send_packet(char x)              // SUBROUTINE: SEND TO THE DISPLAY THE x BYTES STORED IN tx_packet
-{
-    char ix = 0;                       // Bytes index
+// void send_packet(char x)              // SUBROUTINE: SEND TO THE DISPLAY THE x BYTES STORED IN tx_packet
+// {
+//     char ix = 0;                       // Bytes index
  
-   Wire.beginTransmission(SLAVE2W);   // Begin the transmission via I2C to the display with the given address
-   for(ix=0; ix<x; ix++)              // One byte at a time,
-   {
-      Wire.write(tx_packet[ix]);      //  queue bytes for transmission
-   }
-   Wire.endTransmission();            // Transmits the bytes that were queued
-}
+//    Wire.beginTransmission(SLAVE2W);   // Begin the transmission via I2C to the display with the given address
+//    for(ix=0; ix<x; ix++)              // One byte at a time,
+//    {
+//       Wire.write(tx_packet[ix]);      //  queue bytes for transmission
+//    }
+//    Wire.endTransmission();            // Transmits the bytes that were queued
+// }
 
 void command(char c)                  // SUBROUTINE: PREPARES THE TRANSMISSION OF A COMMAND
 {
