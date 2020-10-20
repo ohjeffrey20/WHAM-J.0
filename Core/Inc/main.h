@@ -70,14 +70,18 @@ void Error_Handler(void);
 #define LD2_Pin GPIO_PIN_8
 #define LD2_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-#define DC GPIO_PIN_0
-#define E GPIO_PIN_3
 
 /******************  Bits definition for display "register"  ***************/
-#define GPIOB_DISPLAY_DATA_Pos	(4U)
-#define GPIOB_DISPLAY_DATA_Msk	(0xFUL << GPIOB_DISPLAY_DATA_Pos)
+// #define GPIOB_DISPLAY_DATA_Pos	(4U)
+// #define GPIOB_DISPLAY_DATA_Msk	(0xFUL << GPIOB_DISPLAY_DATA_Pos)
+I2C_HandleTypeDef hi2c2;
+UART_HandleTypeDef huart2;
+volatile unsigned int TIM2cnt;
 
-/* USER CODE END Private defines */
+void TIM2_Init(void);
+void delayms(int ms);
+void TIM2_IRQHandler(void);
+void LCD_test(void);
 
 #ifdef __cplusplus
 }

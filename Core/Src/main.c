@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -16,120 +15,35 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
-#include "stm32g4xx_hal_i2c.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c2;
-UART_HandleTypeDef huart2;
-volatile unsigned int TIM2cnt;
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void TIM2_Init(void);
+static void SystemClock_Config(void);
 static void MX_USART2_UART_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C2_Init(void);
-void TIM2_IRQHandler(void);
-void delayms(int ms);
-void LCD_Init(void);
-void LCD_DC(char c, char DC_Flag);
-void I2C_Init(void);
-void L2D_Init(void);
-void I2C_Write(char w, char DC_Flag);
-
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
 int main(void){
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C2_Init();
   MX_USART2_UART_Init();
+  /* Initialize extras */
   TIM2_Init();
-  
-  I2C_Init();
-  L2D_Init();
+  LCD_Init();
 
-  /* USER CODE BEGIN 2 */
-  // LCD_Init();
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while(1){
+    LCD_test();
     HAL_GPIO_TogglePin(GPIOB, LD2_Pin);
     HAL_Delay(100);
-  }
-}
-
-void LCD_test(void){
-  char C = 'A';
-  char c = 'a';
-  int i = 1;
-  LCD_DC(0x01,1); //clear display
-	LCD_DC(0x02,1); //return home
-  while(i < 26){
-    LCD_DC(C,0);
-    LCD_DC(c,0);
-    C++;
-    c++;
-    i++;
   }
 }
 
@@ -137,7 +51,7 @@ void LCD_test(void){
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
+static void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -281,51 +195,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 }
-//static void GPIO_Init(void){
-//	uint32_t temp;
-//	/* GPIO Ports Clock Enable */
-//	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
-//	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
-//
-//	/*Configure GPIO pin Output Level */
-//	LD2_GPIO_Port->BRR |= LD2_Pin;
-//
-//	/*Configure GPIO pin : LD2_Pin */
-//	temp = GPIOB->MODER;
-//	temp &= ~(GPIO_PUPDR_PUPD0 << (8U * 2U));
-//	temp |= GPIO_MODE_OUTPUT_PP << (8U * 2U);
-//	GPIOB->MODER = temp;
-//
-//	GPIOB->OTYPER &= ~LD2_Pin;	// Push Pull
-//
-//	temp = GPIOB->OSPEEDR;
-//	temp &= ~(GPIO_OSPEEDR_OSPEED0 << (8U * 2U));
-//	temp |= GPIO_SPEED_FREQ_LOW << (8U * 2U);
-//	GPIOB->OSPEEDR = temp;
-//
-//	temp = GPIOB->PUPDR;
-//	temp &= ~(GPIO_PUPDR_PUPD0 << (8U * 2U));
-//	temp |= GPIO_NOPULL << (8U * 2U);
-//	GPIOB->PUPDR = temp;
-//
-//	/*Configure GPIO pin : GPIO_PIN_7 */
-//	temp = GPIOB->MODER;
-//	temp &= ~(GPIO_PUPDR_PUPD0 << (7U * 2U));
-//	temp |= GPIO_MODE_OUTPUT_OD << (7U * 2U);
-//	GPIOB->MODER = temp;
-//
-//	GPIOB->OTYPER &= ~GPIO_PIN_7;	// Push Pull
-//
-//	temp = GPIOB->OSPEEDR;
-//	temp &= ~(GPIO_OSPEEDR_OSPEED0 << (7U * 2U));
-//	temp |= GPIO_SPEED_FREQ_LOW << (7U * 2U);
-//	GPIOB->OSPEEDR = temp;
-//
-//	temp = GPIOB->PUPDR;
-//	temp &= ~(GPIO_PUPDR_PUPD0 << (7U * 2U));
-//	temp |= GPIO_NOPULL << (7U * 2U);
-//	GPIOB->PUPDR = temp;
-//}
 
 /**
   * @brief I2C2 Initialization Function
@@ -374,7 +243,7 @@ static void MX_I2C2_Init(void)
 
 } 
 
-static void TIM2_Init(void){
+void TIM2_Init(void){
   RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
 	TIM2->PSC = 0;
 	TIM2->ARR = 48;	// Check freq
@@ -384,7 +253,6 @@ static void TIM2_Init(void){
 	NVIC_EnableIRQ(TIM2_IRQn);	// Double check this is clearing flags
 }
 
-/* USER CODE BEGIN 4 */
 void TIM2_IRQHandler(void){
 	if(TIM2->SR && TIM_SR_UIF){	// Check rw,r,w priv
 		TIM2cnt++;
@@ -402,129 +270,20 @@ void delayms(int ms){
 	TIM2->CR1 &= ~TIM_CR1_CEN;
 }
 
-void LCD_Init(void){
-	/* For 4-bit Parallel:
-	 * 1. Vss (Ground)
-	 * 2. Vdd (5V)
-	 * 3. RegVdd (5V)
-	 * 4. D/C (PB0)
-	 * 5. R/W (Ground)
-	 * 6. E (PB3)
-	 * 7-10. N/A (Ground)
-	 * 11-14. Data (PB4-PB7)
-	 * 15. CS (Ground)
-	 * 16. /RES (5V)
-	 * 17-19. BS (101)
-	 * 20. Vss (Ground)
-	 */
-//  RES = 1; //reset HIGH – inactive
-  HAL_Delay(1);
-  LCD_DC(0x2A,1); //function set (extended command set)
-  LCD_DC(0x71,1); //function selection A
-  LCD_DC(0x00,0); // disable internal VDD regulator (2.8V I/O). data(0x5C) = enable regulator (5V I/O)
-  LCD_DC(0x28,1); //function set (fundamental command set)
-  LCD_DC(0x08,1); //display off, cursor off, blink off
-  LCD_DC(0x2A,1); //function set (extended command set)
-  LCD_DC(0x79,1); //OLED command set enabled
-  LCD_DC(0xD5,1); //set display clock divide ratio/oscillator frequency
-  LCD_DC(0x70,1); //set display clock divide ratio/oscillator frequency
-  LCD_DC(0x78,1); //OLED command set disabled
-  LCD_DC(0x09,1); //extended function set (4-lines)
-  LCD_DC(0x06,1); //COM SEG direction
-  LCD_DC(0x72,1); //function selection B
-  LCD_DC(0x00,0); //ROM CGRAM selection
-  LCD_DC(0x2A,1); //function set (extended command set)
-  LCD_DC(0x79,1); //OLED command set enabled
-  LCD_DC(0xDA,1); //set SEG pins hardware configuration
-  LCD_DC(0x10,1); //set SEG pins hardware configuration
-  LCD_DC(0xDC,1); //function selection C
-  LCD_DC(0x00,1); //function selection C
-  LCD_DC(0x81,1); //set contrast control
-  LCD_DC(0x7F,1); //set contrast control
-  LCD_DC(0xD9,1); //set phase length
-  LCD_DC(0xF1,1); //set phase length
-  LCD_DC(0xDB,1); //set VCOMH deselect level
-  LCD_DC(0x40,1); //set VCOMH deselect level
-  LCD_DC(0x78,1); //OLED command set disabled
-  LCD_DC(0x28,1); //function set (fundamental command set)
-  LCD_DC(0x01,1); //clear display
-  LCD_DC(0x80,1); //set DDRAM address to 0x00
-  LCD_DC(0x0C,1); //display ON
-  HAL_Delay(100);
+void LCD_test(void){
+  char C = 'A';
+  char c = 'a';
+  int i = 1;
+  command(0x01); //clear display
+	command(0x02); //return home
+  while(i < 26){
+    data(C);
+    data(c);
+    C++;
+    c++;
+    i++;
+  }
 }
-
-void LCD_DC(char c, char DC_Flag){
-	uint32_t temp;
-	if (DC_Flag == 0){
-		GPIOB->ODR |= DC;	//Data
-	}
-	else {
-		GPIOB->ODR &= ~DC;	//Command
-	}
- 	temp = GPIOB->ODR;
-	temp &= ~GPIOB_DISPLAY_DATA_Msk;
-	temp |= (c & 0xF0);
-	GPIOB->ODR = temp;
-	GPIOB->ODR |= E;
-	HAL_Delay(1);
-	GPIOB->ODR &= ~E;
-
-	temp = GPIOB->ODR;
-	temp &= ~GPIOB_DISPLAY_DATA_Msk;
-	temp |= (c & 0x0F) << 4;
-	GPIOB->ODR = temp;
-	GPIOB->ODR |= E;
-	HAL_Delay(1);
-	GPIOB->ODR &= ~E;
-}
-
-void I2C_Init(void){
-	uint32_t temp;
-	// __I2C2_CLK_ENABLE();
-	temp = I2C2->CR2;
-	temp &= ~(I2C_CR2_SADD & I2C_CR1_PE);	// Write transfer ensured
-	temp |= 0x3C << 1;	// Display Address
-	I2C2->CR2 = temp;
-}
-
-void L2D_Init(void){
-  uint32_t ret;
-	uint32_t temp;
-  uint8_t buf[12];
-	I2C2->CR2 |= I2C_CR1_PE;
-	// I2C2->CR2 |= I2C_CR2_START;
-	// while((I2C2->ISR & I2C_ISR_TXIS) != 1);
-  buf[0] = 0x2A;
-  ret = HAL_I2C_Master_Transmit(&hi2c2, 0x3C << 1, (uint8_t *)"1234", 4, 10000);
-  if (ret != HAL_OK)
-    {
-        asm("bkpt 255");
-    }
-}
-
-void I2C_Write(char w, char DC_Flag){
-	uint32_t temp;
-	if (DC_Flag == 0){	// Data
-		temp = I2C2->TXDR;
-		temp &= ~I2C_TXDR_TXDATA;
-		temp |= 0x40;
-		I2C2->TXDR = temp;
-	}
-	else{	// Command
-		temp = I2C2->TXDR;
-		temp &= ~I2C_TXDR_TXDATA;
-		temp |= 0x00;
-		I2C2->TXDR = temp;
-	}
-	while((I2C2->ISR & I2C_ISR_TXIS) != 1);
-	temp = I2C2->TXDR;
-	temp &= ~I2C_TXDR_TXDATA;
-	temp |= w;
-	I2C2->TXDR = temp;
-	while((I2C2->ISR & I2C_ISR_TXIS) != 1);
-}
-
-/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
