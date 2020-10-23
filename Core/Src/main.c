@@ -51,8 +51,7 @@ int main(void){
   * @brief System Clock Configuration
   * @retval None
   */
-static void SystemClock_Config(void)
-{
+static void SystemClock_Config(void){
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
@@ -106,16 +105,7 @@ static void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
+static void MX_USART2_UART_Init(void){
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
@@ -143,10 +133,6 @@ static void MX_USART2_UART_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
 }
 
 /**
@@ -154,8 +140,7 @@ static void MX_USART2_UART_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
-{
+static void MX_GPIO_Init(void){
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -201,16 +186,7 @@ static void MX_GPIO_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C2_Init(void)
-{
-
-  /* USER CODE BEGIN I2C2_Init 0 */
-
-  /* USER CODE END I2C2_Init 0 */
-
-  /* USER CODE BEGIN I2C2_Init 1 */
-
-  /* USER CODE END I2C2_Init 1 */
+static void MX_I2C2_Init(void){
   hi2c2.Instance = I2C2;
   hi2c2.Init.Timing = 0x30A0A7FB;
   hi2c2.Init.OwnAddress1 = 0;
@@ -220,7 +196,7 @@ static void MX_I2C2_Init(void)
   hi2c2.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
   hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  __I2C2_CLK_ENABLE();
+  // __I2C2_CLK_ENABLE();
   if (HAL_I2C_Init(&hi2c2) != HAL_OK)
   {
     Error_Handler();
@@ -237,12 +213,13 @@ static void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C2_Init 2 */
+}
 
-  /* USER CODE END I2C2_Init 2 */
-
-} 
-
+/**
+  * @brief  Timer 2 Init
+  * @param None
+  * @retval None
+  */
 void TIM2_Init(void){
   RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
 	TIM2->PSC = 0;
@@ -253,6 +230,11 @@ void TIM2_Init(void){
 	NVIC_EnableIRQ(TIM2_IRQn);	// Double check this is clearing flags
 }
 
+/**
+  * @brief  Timer 2 Interrupt Handler
+  * @param None
+  * @retval None
+  */
 void TIM2_IRQHandler(void){
 	if(TIM2->SR && TIM_SR_UIF){	// Check rw,r,w priv
 		TIM2cnt++;
@@ -260,6 +242,11 @@ void TIM2_IRQHandler(void){
 	}
 }
 
+/**
+  * @brief  Delay Function
+  * @param ms Delay in ms
+  * @retval None
+  */
 void delayms(int ms){
 	// Check access priv
 	TIM2cnt = 0;
@@ -270,6 +257,11 @@ void delayms(int ms){
 	TIM2->CR1 &= ~TIM_CR1_CEN;
 }
 
+/**
+  * @brief  LCD Testing Function
+  * @param None
+  * @retval None
+  */
 void LCD_test(void){
   char C = 'A';
   char c = 'a';
@@ -289,8 +281,7 @@ void LCD_test(void){
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void)
-{
+void Error_Handler(void){
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
 
@@ -305,8 +296,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
-{
+void assert_failed(uint8_t *file, uint32_t line){
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
@@ -314,4 +304,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/****END OF FILE****/

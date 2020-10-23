@@ -1,9 +1,14 @@
 #include "main.h"
 #include "LCD.h"
 
-void command(char c){
-   char ret;
-   tx_packet[0] = 0x00;
+/**
+  * @brief  LCD Command Send
+  * @param c Command to send
+  * @retval None
+  */
+void command(uint8_t c){
+   uint8_t ret;
+   tx_packet[0] = Com_add;
    tx_packet[1] = c;
    ret = HAL_I2C_Master_Transmit(&hi2c2, LCD_add << 1, tx_packet, 2, 10000);
    if (ret != HAL_OK){
@@ -11,9 +16,15 @@ void command(char c){
    }
 }
 
-void data(char d){
-   char ret;
-   tx_packet[0] = 0x40;
+/**
+  * @brief  LCD Command Send
+  * @param d Data to send
+  * @param n Number of data to send
+  * @retval None
+  */
+void data(uint8_t d){
+   uint8_t ret;
+   tx_packet[0] = Data_add;
    tx_packet[1] = d;
    ret = HAL_I2C_Master_Transmit(&hi2c2, LCD_add << 1, tx_packet, 2, 10000);
    if (ret != HAL_OK){
