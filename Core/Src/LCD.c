@@ -10,7 +10,7 @@ void command(uint8_t c){
    uint8_t ret;
    tx_packet[0] = Com_add;
    tx_packet[1] = c;
-   ret = HAL_I2C_Master_Transmit(&hi2c2, LCD_add << 1, tx_packet, 2, 10000);
+   ret = HAL_I2C_Master_Transmit(&hi2c2, LCD_add << 1, tx_packet, 2, 100);
    if (ret != HAL_OK){
       Error_Handler();
    }
@@ -26,7 +26,7 @@ void data(uint8_t d){
    uint8_t ret;
    tx_packet[0] = Data_add;
    tx_packet[1] = d;
-   ret = HAL_I2C_Master_Transmit(&hi2c2, LCD_add << 1, tx_packet, 2, 10000);
+   ret = HAL_I2C_Master_Transmit(&hi2c2, LCD_add << 1, tx_packet, 2, 100);
    if (ret != HAL_OK){
       Error_Handler();
    }
