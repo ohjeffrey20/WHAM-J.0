@@ -31,7 +31,7 @@ int main(void){
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
   /* Configure the system clock */
-  SystemClock_Config();
+  SystemClock_Config(); // Code WORKS without this, but appears to run slower (this likely ups the clock speed)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C2_Init();
@@ -43,7 +43,9 @@ int main(void){
   while(1){
     LCD_test();
     HAL_GPIO_TogglePin(GPIOB, LD2_Pin);
-    HAL_Delay(100);
+    HAL_Delay(500);
+    HAL_GPIO_TogglePin(GPIOB, LD2_Pin);
+    HAL_Delay(500);
   }
 }
 
@@ -51,8 +53,7 @@ int main(void){
   * @brief System Clock Configuration
   * @retval None
   */
-static void SystemClock_Config(void)
-{
+static void SystemClock_Config(void){
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
@@ -94,7 +95,6 @@ static void SystemClock_Config(void)
   */
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C2;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1; // TODO CHECK THIS (edit from MX)
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -106,16 +106,7 @@ static void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
+static void MX_USART2_UART_Init(void){
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
@@ -143,10 +134,6 @@ static void MX_USART2_UART_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
 }
 
 /**
@@ -154,8 +141,7 @@ static void MX_USART2_UART_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
-{
+static void MX_GPIO_Init(void){
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -201,16 +187,7 @@ static void MX_GPIO_Init(void)
   * @param None
   * @retval None
   */
-static void MX_I2C2_Init(void)
-{
-
-  /* USER CODE BEGIN I2C2_Init 0 */
-
-  /* USER CODE END I2C2_Init 0 */
-
-  /* USER CODE BEGIN I2C2_Init 1 */
-
-  /* USER CODE END I2C2_Init 1 */
+static void MX_I2C2_Init(void){
   hi2c2.Instance = I2C2;
   hi2c2.Init.Timing = 0x30A0A7FB;
   hi2c2.Init.OwnAddress1 = 0;
@@ -237,12 +214,13 @@ static void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C2_Init 2 */
-
-  /* USER CODE END I2C2_Init 2 */
-
 } 
 
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
 void TIM2_Init(void){
   RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
 	TIM2->PSC = 0;
@@ -253,6 +231,12 @@ void TIM2_Init(void){
 	NVIC_EnableIRQ(TIM2_IRQn);	// Double check this is clearing flags
 }
 
+
+/**
+  * @brief TIM2 Interrupt Handler
+  * @param None
+  * @retval None
+  */
 void TIM2_IRQHandler(void){
 	if(TIM2->SR && TIM_SR_UIF){	// Check rw,r,w priv
 		TIM2cnt++;
@@ -260,6 +244,11 @@ void TIM2_IRQHandler(void){
 	}
 }
 
+/**
+  * @brief Delay in ms Function
+  * @param ms Delay in ms
+  * @retval None
+  */
 void delayms(int ms){
 	// Check access priv
 	TIM2cnt = 0;
@@ -270,6 +259,11 @@ void delayms(int ms){
 	TIM2->CR1 &= ~TIM_CR1_CEN;
 }
 
+/**
+  * @brief LCD Testing Function
+  * @param None
+  * @retval None
+  */
 void LCD_test(void){
   char C = 'A';
   char c = 'a';
