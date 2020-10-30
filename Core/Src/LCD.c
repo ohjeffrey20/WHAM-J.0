@@ -1,41 +1,7 @@
 #include "main.h"
 #include "LCD.h"
 
-
-/**
-  * @brief  I2C Initialization Function
-  * @param None
-  * @retval None
-  */
- void i2c_int(I2C_TypeDef *i2c){
-   i2c->CR1 &= !I2C_CR1_PE_Msk;
-   // Assume AF and DF are fine
-   
-
- }
-
-/**
-  * @brief  Sending Data Via I2C
-  * @param hi2c I2C Handler Pointer
-  * @param add I2C Address
-  * @param txP Transmit Packet Pointer
-  * @param size Size of Packet
-  * @retval Status
-  */
-uint8_t i2c_send(I2C_HandleTypeDef *hi2c, uint8_t add, uint8_t *txP, uint8_t size){
-   uint32_t temp;
-   // Set number of bytes to send
-   temp = I2C2->CR2 & !I2C_CR2_NBYTES_Msk;
-   temp |= size << I2C_CR2_NBYTES_Pos;
-   // Make Master
-   // We want reload = 0 and autoend = 1
-   temp = I2C2->CR2 & !I2C_CR2_NBYTES_Msk;
-   temp |= size << I2C_CR2_NBYTES_Pos;
-   // Push address
-   // Push data + size
-   // start
-   // stop
-}
+// TODO: Figure out how I2C Master Transmit Works
 
 /**
   * @brief  LCD Command Send
