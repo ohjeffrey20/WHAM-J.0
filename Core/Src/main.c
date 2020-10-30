@@ -179,8 +179,8 @@ static void MX_GPIO_Init(void){
   */
 static void MX_I2C2_Init(void){
   hi2c2.Instance = I2C2;
-  // hi2c2.Init.Timing = 0x30A0A7FB; // Standard Mode
-  hi2c2.Init.Timing = 0x00602173; // Fast Mode
+  // hi2c2.Init.Timing = 0x30A0A7FB; // Standard Mode (100KHz)
+  hi2c2.Init.Timing = 0x00602173; // Fast Mode (400KHz)
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -189,23 +189,22 @@ static void MX_I2C2_Init(void){
   hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
   hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
   __I2C2_CLK_ENABLE();
-  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
-  {
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK){
     Error_Handler();
   }
   /** Configure Analogue filter
   */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK){
     Error_Handler();
   }
   /** Configure Digital filter
   */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
-  {
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK){
     Error_Handler();
   }
 } 
+
+// TODO: Get TIM2 Working
 
 /**
   * @brief TIM2 Initialization Function
@@ -274,8 +273,7 @@ void LCD_test(void){
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void)
-{
+void Error_Handler(void){
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
 
@@ -290,8 +288,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t *file, uint32_t line)
-{
+void assert_failed(uint8_t *file, uint32_t line){
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
