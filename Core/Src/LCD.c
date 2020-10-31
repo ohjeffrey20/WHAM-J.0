@@ -1,7 +1,17 @@
 #include "main.h"
 #include "LCD.h"
 
-// TODO: Figure out how I2C Master Transmit Works
+/*
+   * How I2C Master Transmit Works
+   ** Master mode
+   ** Reload mode
+   ** Size of data
+   ** Slave address
+   ** Autoend
+   ** Send start
+   ** Check for I2C_ISR_TXIS
+   ** Clear stop flag as autoend triggered
+   */
 
 /**
   * @brief  LCD Command Send
