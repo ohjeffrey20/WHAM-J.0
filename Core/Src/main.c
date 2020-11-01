@@ -212,9 +212,9 @@ static void MX_I2C2_Init(void){
   * @retval None
   */
 void TIM2_Init(void){
-  RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
+  RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN; // TODO Check this you fucking monkey
 	TIM2->PSC = 0;
-	TIM2->ARR = 48;	// Check freq
+	TIM2->ARR = 48;	// Freq is now 64MHz, TODO Check the psc and arr values such that tim2 operates as expected
 	TIM2->CR1 |= TIM_CR1_URS;
 	TIM2->DIER |= TIM_DIER_UIE;
 	TIM2->EGR |= TIM_EGR_UG;
