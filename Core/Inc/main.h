@@ -76,7 +76,7 @@ void Error_Handler(void);
 // #define GPIOB_DISPLAY_DATA_Msk	(0xFUL << GPIOB_DISPLAY_DATA_Pos)
 I2C_HandleTypeDef hi2c2;
 UART_HandleTypeDef huart2;
-volatile unsigned int TIM2cnt;
+static volatile uint16_t TIM2cnt;
 
 void TIM2_Init(void);
 void delayms(int ms);

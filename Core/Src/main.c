@@ -35,7 +35,7 @@ int main(void){
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C2_Init();
-  // MX_USART2_UART_Init();
+  MX_USART2_UART_Init();
   /* Initialize extras */
   TIM2_Init();
   LCD_Init();
@@ -43,9 +43,7 @@ int main(void){
   while(1){
     LCD_test();
     HAL_GPIO_TogglePin(GPIOB, LD2_Pin);
-    HAL_Delay(500);
-    HAL_GPIO_TogglePin(GPIOB, LD2_Pin);
-    HAL_Delay(500);
+    delayms(500);
   }
 }
 
@@ -179,7 +177,6 @@ static void MX_GPIO_Init(void){
   */
 static void MX_I2C2_Init(void){
   hi2c2.Instance = I2C2;
-  // hi2c2.Init.Timing = 0x30A0A7FB; // Standard Mode (100KHz)
   hi2c2.Init.Timing = 0x00602173; // Fast Mode (400KHz)
   hi2c2.Init.OwnAddress1 = 0;
   hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -202,9 +199,7 @@ static void MX_I2C2_Init(void){
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK){
     Error_Handler();
   }
-} 
-
-// TODO: Get TIM2 Working
+}
 
 /**
   * @brief TIM2 Initialization Function
@@ -212,13 +207,13 @@ static void MX_I2C2_Init(void){
   * @retval None
   */
 void TIM2_Init(void){
-  RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN; // TODO Check this you fucking monkey
-	TIM2->PSC = 0;
-	TIM2->ARR = 48;	// Freq is now 64MHz, TODO Check the psc and arr values such that tim2 operates as expected
+  RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
+	TIM2->PSC = 63;
+	TIM2->ARR = 1000 * 2; // No clue why speed is doubled
 	TIM2->CR1 |= TIM_CR1_URS;
 	TIM2->DIER |= TIM_DIER_UIE;
 	TIM2->EGR |= TIM_EGR_UG;
-	NVIC_EnableIRQ(TIM2_IRQn);	// Double check this is clearing flags
+	NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 
@@ -230,7 +225,7 @@ void TIM2_Init(void){
 void TIM2_IRQHandler(void){
 	if(TIM2->SR && TIM_SR_UIF){	// Check rw,r,w priv
 		TIM2cnt++;
-		TIM2->SR |= TIM_SR_UIF;
+		TIM2->SR &= ~TIM_SR_UIF;
 	}
 }
 
@@ -240,10 +235,9 @@ void TIM2_IRQHandler(void){
   * @retval None
   */
 void delayms(int ms){
-	// Check access priv
 	TIM2cnt = 0;
 	TIM2->CR1 |= TIM_CR1_CEN;
-	while(TIM2cnt < ms){
+	while(TIM2cnt <= ms){
 		asm("nop");
 	}
 	TIM2->CR1 &= ~TIM_CR1_CEN;
@@ -260,13 +254,20 @@ void LCD_test(void){
   int i = 1;
   command(0x01); //clear display
 	command(0x02); //return home
-  while(i < 26){
-    data(C);
-    data(c);
-    C++;
-    c++;
-    i++;
-  }
+  // while(i < 26){
+  //   data(C);
+  //   data(c);
+  //   C++;
+  //   c++;
+  //   i++;
+  // }
+  data('J');
+  data('e');
+  data('f');
+  data('f');
+  data('r');
+  data('e');
+  data('y');
 }
 
 /**
