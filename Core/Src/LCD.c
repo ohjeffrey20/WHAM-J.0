@@ -1,5 +1,4 @@
 #include "main.h"
-#include "LCD.h"
 
 /*
    * How I2C Master Transmit Works
@@ -82,4 +81,31 @@ void LCD_Init(void){
    command(0x80); //set DDRAM address to 0x00
    command(0x0C); //display ON
    command(0x2A); // Function set: extended command set (RE=1), lines #
+}
+
+/**
+  * @brief LCD Testing Function
+  * @param None
+  * @retval None
+  */
+void LCD_test(void){
+  char C = 'A';
+  char c = 'a';
+  int i = 1;
+  command(0x01); //clear display
+	command(0x02); //return home
+  // while(i < 26){
+  //   data(C);
+  //   data(c);
+  //   C++;
+  //   c++;
+  //   i++;
+  // }
+  data('J');
+  data('e');
+  data('f');
+  data('f');
+  data('r');
+  data('e');
+  data('y');
 }

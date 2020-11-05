@@ -30,58 +30,15 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
 #include "LCD.h"
+#include "init.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
-
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
-
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
-
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
-
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
-
-/* Private defines -----------------------------------------------------------*/
-#define USART2_TX_Pin GPIO_PIN_2
-#define USART2_TX_GPIO_Port GPIOA
-#define USART2_RX_Pin GPIO_PIN_3
-#define USART2_RX_GPIO_Port GPIOA
-#define T_SWDIO_Pin GPIO_PIN_13
-#define T_SWDIO_GPIO_Port GPIOA
-#define T_SWCLK_Pin GPIO_PIN_14
-#define T_SWCLK_GPIO_Port GPIOA
-#define LD2_Pin GPIO_PIN_8
-#define LD2_GPIO_Port GPIOB
-/* USER CODE BEGIN Private defines */
-
-/******************  Bits definition for display "register"  ***************/
-// #define GPIOB_DISPLAY_DATA_Pos	(4U)
-// #define GPIOB_DISPLAY_DATA_Msk	(0xFUL << GPIOB_DISPLAY_DATA_Pos)
 I2C_HandleTypeDef hi2c2;
 UART_HandleTypeDef huart2;
-static volatile uint16_t TIM2cnt;
+volatile uint16_t TIM2cnt;
 
-void TIM2_Init(void);
-void delayms(int ms);
 void TIM2_IRQHandler(void);
-void LCD_test(void);
+void delayms(int ms);
+void Error_Handler(void);
 
 #ifdef __cplusplus
 }

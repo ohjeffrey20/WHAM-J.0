@@ -13,5 +13,6 @@ volatile uint8_t tx_packet[20];
 void command(uint8_t c);
 void data(uint8_t d);
 void LCD_Init(void);
+void LCD_test(void);
 
 #endif
